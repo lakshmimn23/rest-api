@@ -7,12 +7,12 @@ const auth = async(req,res,next) => {
         //read the token from headers auth 2.0
         let token = req.header('Authorization')
             if(!token)
-                return res.status(StatusCodes.NOT_FOUND).json({ msg : `Token Not found`})
+                return res.status(StatusCodes.NOT_FOUND).json({ msg : `Token Not found`, success: false})
 
                 //verifying token
                 await jwt.verify(token, process.env.ACCESS_SECRET, (err,data) =>{
                     if(err)
-                    return res.status(StatusCodes.UNAUTHORIZED).json({msg : `Unauthorized token`})
+                    return res.status(StatusCodes.UNAUTHORIZED).json({msg : `Unauthorized token`, success: false})
 
                         //res.json({data}) //id
                     //stoer id in req. variable
@@ -25,7 +25,7 @@ const auth = async(req,res,next) => {
                 } )
       //  res.json( {token})
     } catch (err) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({msg : err})
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({msg : err, success: false})
     }
 }
 
