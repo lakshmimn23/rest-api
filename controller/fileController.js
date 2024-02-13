@@ -106,34 +106,39 @@ const readSingle = async(req,res) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({msg : err, success: false})
     }
 }
-//delete - get + ref
 
-const deleteFile = async(req,res) => {
+// delete - delete + ref
+const deleteFile = async (req,res) => {
     try {
         let fileId = req.params.id
         let userId = req.userID
 
-        //read existing file data ref to id
-        let extFile = await FileSchema.findById({_id: fileId})
-            if(!extFile)
-                return res.status(StatusCodes.CONFLICT).json({msg : `Requested file id not existe`, success: false})
-         //if file belongs to authorized user or not
-            if(userId != extFile.userId)
-                return res.status(StatusCodes.UNAUTHORIZED).json({msg : `Unauthorized file read...`, success: false})
-        //delete physical file from directory
-        let filePath = path.resolve(__dirname, `../public/${extFile.newName}`)
-        if(fs.existsSync(filePath)){
-            //to delete the file
-            await fs.unlinkSync(filePath)
-            //to remove file info in db collection
-            await FileSchema.findByIdAndDelete({id: extFile._id})
+           // read existing file data ref to id
+           let extFile = await FileSchema.findById({ _id: fileId })
+           if(!extFile)
+               return res.status(StatusCodes.CONFLICT).json({ msg: `Requested file id not exists`, success: false })
 
-            return res.status(StatusCodes.ACCEPTED).json({msg : `file deleted successfully`, success: true})
-        }else {
-            return res.json({msg : 'file not exists', success: false})
+       // if file belongs to authorized user or not
+           if(userId != extFile.userId)
+               return res.status(StatusCodes.UNAUTHORIZED).json({ msg: `Unauthorized file read..`, success: false })
+
+        // delete physical file from directory
+        let filePath = path.resolve(__dirname,`../public/${extFile.newName}`)
+
+        if(fs.existsSync(filePath)) {
+            // to delete the file 
+            await fs.unlinkSync(filePath)
+            // to remove file info in db collection
+            await FileSchema.findByIdAndDelete({ _id: extFile._id })
+
+            return res.status(StatusCodes.ACCEPTED).json({ msg: 'file deleted successfully', success: true })
+        } else {
+            return res.json({ msg: 'file not exists', extFile, success: false  })
         }
+
+        
     } catch (err) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({msg: err, success: false})
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: err, success: false })
     }
 }
 
